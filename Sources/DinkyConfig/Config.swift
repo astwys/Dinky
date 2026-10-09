@@ -101,8 +101,8 @@ public struct Config: Equatable {
                 guard let n = Int(key), (1...workspaces).contains(n) else {
                     throw ConfigError(path: assignments.path(key), "'\(key)' is not a workspace number from 1 to \(workspaces)")
                 }
-                // `4 = 2` puts workspace 4 on display 2, as `4 = '2'` does.
-                let patterns = try (try? assignments.int(key)).map { [String($0)] } ?? assignments.stringOrStrings(key)!
+                // `4 = 2` puts workspace 4 on display 2, as `4 = '2'` does; a list can mix numbers and names.
+                let patterns = try assignments.displayPatterns(key)!
                 guard !patterns.isEmpty, !patterns.contains("") else {
                     throw ConfigError(path: assignments.path(key), "a display pattern can't be empty")
                 }
