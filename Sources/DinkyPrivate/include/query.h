@@ -27,7 +27,7 @@ typedef NS_ENUM(int, DinkySpaceType) {
 
 int dinky_connection(void);
 
-// One entry per display, in SLSCopyManagedDisplaySpaces order.
+// One entry per display, left to right, then top to bottom.
 NSArray<DinkyDisplay *> *dinky_displays(void);
 
 // Each display's current Space, in SLSCopyManagedDisplaySpaces order. Cheaper than dinky_displays:
