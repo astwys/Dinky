@@ -311,6 +311,7 @@ one workspace, the last wins and the other is ignored, with a warning.
 5 = 'secondary'         # on the side display while it's connected, else a normal workspace
 4 = ['dell', 'lg']
 6 = 1                   # the leftmost display, with three or more
+7 = [3, 'dell']         # the third display, else the Dell
 ```
 
 When a display comes or goes, dinky moves the workspace's windows, layout

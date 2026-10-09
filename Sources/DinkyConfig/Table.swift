@@ -72,13 +72,28 @@ final class Table {
         return strings
     }
 
-    /// A string or a list of them, e.g. display patterns.
-    func stringOrStrings(_ key: String) throws -> [String]? {
+    /// Display patterns: a string or a display number, or a list of them, each number as its digits.
+    func displayPatterns(_ key: String) throws -> [String]? {
         guard let actualKey = use(key) else { return nil }
-        guard let strings = stringArray(actualKey) ?? (try? string(actualKey)).map({ [$0] }) else {
-            throw ConfigError(path: path(key), "expected a string or a list of strings")
+        if let n = try? table.integer(forKey: actualKey) { return [String(n)] }
+        if let array = try? table.array(forKey: actualKey) {
+            var patterns: [String] = []
+            for index in 0..<array.count {
+                // As in string(_:): rule integers out before reading a string.
+                if let n = try? array.integer(atIndex: index) {
+                    patterns.append(String(n))
+                } else if let string = try? array.string(atIndex: index) {
+                    patterns.append(string)
+                } else {
+                    throw ConfigError(path: path(key), "expected display patterns: strings or display numbers")
+                }
+            }
+            return patterns
         }
-        return strings
+        guard let string = try? string(actualKey) else {
+            throw ConfigError(path: path(actualKey), "expected a display pattern (a string or a display number) or a list of them")
+        }
+        return [string]
     }
 
     func table(_ key: String) throws -> Table? {

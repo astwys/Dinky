@@ -5,7 +5,7 @@
 ### Displays
 
 - Displays are numbered left to right, then top to bottom, everywhere: `list-displays`, `%{monitor-id}`, `focus-monitor N`, and `next`/`prev` in `focus-monitor` and `move-window-to-display`. Before, some commands used the order macOS lists them in, so with three displays "next" could skip the one in the middle.
-- `[workspace-to-display]`, `[display.<pattern>]` and `[workspace.<number>.display.<pattern>]` take a display number, such as `4 = 2` or `[display.2]`. A number beats any name. `secondary` only matches with exactly two displays; `dinky doctor` now warns when it can't match instead of saying all is well, and notes each workspace whose displays are not connected.
+- `[workspace-to-display]`, `[display.<pattern>]` and `[workspace.<number>.display.<pattern>]` take a display number, such as `4 = 2` or `[display.2]`, also in a list with names: `4 = [3, 'dell']` puts workspace 4 on the third display, else the Dell. A number beats any name. `secondary` only matches with exactly two displays; `dinky doctor` now warns when it can't match instead of saying all is well, and notes each workspace whose displays are not connected.
 
 ### Fixes
 

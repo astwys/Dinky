@@ -64,7 +64,10 @@ struct GapsTests {
         assertError("[workspace-to-display]\nfive = 'main'\n", path: "workspace-to-display.five", line: 2, contains: "not a workspace number")
         assertError("[workspace-to-display]\n1 = ''\n", path: "workspace-to-display.1", line: 2, contains: "can't be empty")
         #expect(try Config.parse("[workspace-to-display]\n1 = 2\n2 = '3'\n").workspaceDisplays == [1: [.number(2)], 2: [.number(3)]])
+        #expect(try Config.parse("[workspace-to-display]\n4 = [3, 'dell']\n").workspaceDisplays == [4: [.number(3), .name("dell")]],
+                "a list mixes numbers and names")
         assertError("[workspace-to-display]\n1 = true\n", path: "workspace-to-display.1", line: 2, contains: "string")
+        assertError("[workspace-to-display]\n1 = [2, true]\n", path: "workspace-to-display.1", line: 2, contains: "display numbers")
         // `01` and `+1` are workspace 1 too, as they always were; when keys name one workspace, the last wins, as
         // it always did, and the others are ignored. Each gets a warning.
         let leadingZero = try Config.parse("[workspace-to-display]\n01 = 'main'\n")
