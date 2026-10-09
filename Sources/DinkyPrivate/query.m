@@ -68,6 +68,14 @@ NSArray<DinkyDisplay *> *dinky_displays(void)
         display.spaces = spaces;
         [result addObject:display];
     }
+    // Left to right, then top to bottom, as AeroSpace numbers monitors, so display numbers and next/prev
+    // follow the arrangement rather than the order displays were connected in.
+    [result sortUsingComparator:^NSComparisonResult(DinkyDisplay *a, DinkyDisplay *b) {
+        CGRect fa = CGDisplayBounds(a.displayID), fb = CGDisplayBounds(b.displayID);
+        if (CGRectGetMinX(fa) != CGRectGetMinX(fb)) return CGRectGetMinX(fa) < CGRectGetMinX(fb) ? NSOrderedAscending : NSOrderedDescending;
+        if (CGRectGetMinY(fa) != CGRectGetMinY(fb)) return CGRectGetMinY(fa) < CGRectGetMinY(fb) ? NSOrderedAscending : NSOrderedDescending;
+        return NSOrderedSame;
+    }];
     return result;
 }
 

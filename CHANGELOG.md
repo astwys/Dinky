@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Displays
+
+- Displays are numbered left to right, then top to bottom, everywhere: `list-displays`, `%{monitor-id}`, `focus-monitor N`, and `next`/`prev` in `focus-monitor` and `move-window-to-display`. Before, some commands used the order macOS lists them in, so with three displays "next" could skip the one in the middle.
+
 ### Development
 
 - `BUNDLE_ID=com.brnbw.dinky.dev scripts/bundle.sh` builds dinky under another bundle ID, so a dev build gets its own Accessibility grant next to an installed release.
