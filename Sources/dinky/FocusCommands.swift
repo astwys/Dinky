@@ -10,17 +10,20 @@ extension Dispatcher {
     /// goes on to the display in that direction; at the last edge `action` decides. A floating window, which
     /// has no tree, looks for the nearest window on screen instead.
     static func focus(_ direction: Direction, boundaries: FocusBoundaries, action: BoundariesAction) -> Reply {
+        let model = AppState.shared.displays
+        // A display focused without a window, such as one showing an empty workspace, has only itself to go on from.
+        if boundaries == .allMonitorsOuterFrame, let empty = model.displays.first(where: { $0.uuid == model.focusOverride }) {
+            return enterNeighbour(of: empty, direction, action)
+                ?? (action == .fail ? .error("no display \(direction)") : .ok("no display \(direction)"))
+        }
         guard let coordinator = AppState.shared.coordinator,
               let found = coordinator.command({ $0.focus(direction) ? $0.focused : nil }) else {
             return focusOnScreen(direction)
         }
         if let id = found { return focus(window: id) }
-        let model = AppState.shared.displays
-        if boundaries == .allMonitorsOuterFrame, let from = model.display(ofWindow: coordinator.focusedWindow) {
-            let line = displays(inLineWith: from, direction.orientation, model.displays)
-            let index = line.firstIndex(of: from)! + (direction.isForward ? 1 : -1)
-            if line.indices.contains(index) { return enter(line[index], from: direction) }
-            if action == .wrapAroundAllMonitors { return enter(direction.isForward ? line[0] : line[line.count - 1], from: direction) }
+        if boundaries == .allMonitorsOuterFrame, let from = model.display(ofWindow: coordinator.focusedWindow),
+           let reply = enterNeighbour(of: from, direction, action) {
+            return reply
         }
         switch action {
         case .stop, .wrapAroundAllMonitors:
@@ -57,6 +60,16 @@ extension Dispatcher {
         guard model.displays.indices.contains(n - 1) else { return .error("no display \(n), there are \(model.displays.count)") }
         let display = model.displays[n - 1]
         return focus(display, window: AppState.shared.coordinator?.workspace(on: display)?.focused)
+    }
+
+    /// Enters the display next to `from` in `direction`, or with `wrap-around-all-monitors` the one at the far
+    /// end. Nil when there is none.
+    private static func enterNeighbour(of from: Display, _ direction: Direction, _ action: BoundariesAction) -> Reply? {
+        let line = displays(inLineWith: from, direction.orientation, AppState.shared.displays.displays)
+        let index = line.firstIndex(of: from)! + (direction.isForward ? 1 : -1)
+        if line.indices.contains(index) { return enter(line[index], from: direction) }
+        if action == .wrapAroundAllMonitors { return enter(direction.isForward ? line[0] : line[line.count - 1], from: direction) }
+        return nil
     }
 
     /// Enters a display from `direction`: the window at the edge facing where focus came from.
