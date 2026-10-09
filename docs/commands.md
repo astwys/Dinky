@@ -111,6 +111,10 @@ Cmd-W that the app keeps around. Format variables:
 
 `%{monitor-is-main}` tells a bar which workspaces are on the side display.
 
+Displays are numbered left to right, then top to bottom. `%{monitor-id}`,
+`focus-monitor N`, and `next`/`prev` in `focus-monitor` and
+`move-window-to-display` all follow that order.
+
 ### SketchyBar
 
 Drive a bar from the config's [hooks](configuration.md#hooks):

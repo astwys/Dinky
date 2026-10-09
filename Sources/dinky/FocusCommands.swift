@@ -40,8 +40,7 @@ extension Dispatcher {
         let model = AppState.shared.displays
         model.reconcile()
         guard let from = model.focusedDisplay() else { return .error("no display") }
-        let line = target.direction.map { displays(inLineWith: from, $0.orientation, model.displays) }
-            ?? model.displays.sorted { ($0.frame.minX, $0.frame.minY) < ($1.frame.minX, $1.frame.minY) }
+        let line = target.direction.map { displays(inLineWith: from, $0.orientation, model.displays) } ?? model.displays
         let forward = target.direction?.isForward ?? (target == .next)
         let index = line.firstIndex(of: from)! + (forward ? 1 : -1)
         guard line.indices.contains(index) else {
