@@ -120,9 +120,12 @@ defaults write com.apple.dock workspaces-auto-swoosh -bool true && killall Dock
 
 ## Known limits
 
-- Multi-display docking is tested with virtual displays; physical docking
-  coverage is limited. Switching a display the pointer is not on may flicker
-  the pointer.
+- Tested with up to three displays (a laptop and two external ones); docking
+  is tested with virtual displays, so physical docking coverage is limited.
+  Switching a display the pointer is not on moves the pointer there and back,
+  which can flicker.
+- When a workspace moves to another display, an app that puts its window back
+  where it was (Chess does) stays on the old display's Space.
 - On macOS 26, [create and remove desktops in Mission Control](configuration.md#desktop-setup-on-macos-26).
   dinky numbers, switches and tiles existing desktops, but does not create or
   remove them. Automatic desktop management requires macOS 27 or later; there,
