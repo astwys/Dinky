@@ -11,6 +11,7 @@
 
 - A window moved to a workspace on another display stays there. Before, it could jump back to its old display when its workspace was shown or moved between displays.
 - `focus <direction>` from a floating window works on every display, not only the main one.
+- The first run names the macOS 27 permission list, Device Control and Data Access.
 
 ### Development
 
