@@ -275,6 +275,12 @@ final class Coordinator {
     func moveTree(from: UInt64, to: UInt64) {
         guard from != to, let display = displays.display(containingSpace: to), workspaces[to]?.windows.isEmpty != false,
               var tree = workspaces.removeValue(forKey: from) else { return }
+        // Onto another display, place without gliding: a glide starts on the old display, and macOS hands a
+        // window whose frame is there back to that display's current Space.
+        if displays.display(containingSpace: from)?.uuid != display.uuid {
+            snap.insert(to)
+            tree.windows.forEach(applier.displayChanged)
+        }
         tree.bounds = area(of: display)
         tree.gaps = gaps(on: display)
         tree.walls = walls(of: display)
@@ -349,6 +355,9 @@ final class Coordinator {
         // A window coming from another Space's tree is moving, not switching tabs: tabs share a Space.
         if let new, old == nil, holdAsTab(window, in: new) { return }
         if let new { edit(new) { $0.insert(window.id) } }
+        if let old, let new, displays.display(containingSpace: old)?.uuid != displays.display(containingSpace: new)?.uuid {
+            applier.displayChanged(window.id)
+        }
         placements[window.id]!.space = new
     }
 

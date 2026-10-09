@@ -19,6 +19,10 @@ final class FrameApplier {
     private var elements: [Key: AXUIElement] = [:]
     /// Windows written but not read back, already logged, so a window that stays unreadable is logged once.
     private var unreadable: Set<WindowID> = []
+    /// Windows WindowServer moved to another display behind their app's back, as moving them to a Space there
+    /// does. An AppKit app keeps the old origin and applies it with the next size write, which hands the window
+    /// back to the old display's Space; writing the position first makes the app take the new one.
+    private var staleOrigins: Set<WindowID> = []
     /// The largest minimum size any window of an app has shown, by bundle id. Kept across sessions in
     /// Application Support, so the write-settle-retry chain that discovers a minimum runs once per app ever.
     private var appMinimums: [String: CGSize] = [:]
@@ -36,7 +40,10 @@ final class FrameApplier {
         scheduler = FrameScheduler(
             beforeBatch: { pid in Self.suppressEnhancedUI(pid) },
             read: { [unowned self] job in withElement(pid: job.pid, id: job.id, frame) ?? nil },
-            write: { [unowned self] job in withElement(pid: job.pid, id: job.id) { write(job.frame, to: $0) } },
+            write: { [unowned self] job in
+                let positionFirst = lock.withLock { staleOrigins.remove(job.id) != nil }
+                return withElement(pid: job.pid, id: job.id) { write(job.frame, to: $0, positionFirst: positionFirst) }
+            },
             move: { [unowned self] job in withElement(pid: job.pid, id: job.id) { move(job.frame.origin, to: $0) } }
         )
     }
@@ -63,11 +70,17 @@ final class FrameApplier {
         scheduler.minimumSizes[id] ?? app.flatMap { app in lock.withLock { appMinimums[app] } }
     }
 
+    /// Marks a window that changed display under its app, so its next write sets the position first.
+    func displayChanged(_ id: WindowID) {
+        lock.withLock { _ = staleOrigins.insert(id) }
+    }
+
     /// Forgets a window that is gone: its element and what the scheduler learned about it.
     func forget(_ id: WindowID) {
         lock.withLock {
             elements = elements.filter { $0.key.id != id }
             unreadable.remove(id)
+            staleOrigins.remove(id)
         }
         scheduler.forget(id)
         passes.forget(id)
@@ -223,10 +236,12 @@ final class FrameApplier {
 
     // Size, position, size: the first size lets a window near the screen edge move, the second
     // fixes the size if the move clamped it. Stops at an invalid element, which takes no writes.
-    private func write(_ frame: CGRect, to element: AXUIElement) -> AXError {
+    // `positionFirst` for a window with a stale origin (`staleOrigins`).
+    private func write(_ frame: CGRect, to element: AXUIElement, positionFirst: Bool = false) -> AXError {
         var size = frame.size, origin = frame.origin
         let sizeValue = AXValueCreate(.cgSize, &size)!, originValue = AXValueCreate(.cgPoint, &origin)!
-        for (attribute, value) in [(kAXSizeAttribute, sizeValue), (kAXPositionAttribute, originValue), (kAXSizeAttribute, sizeValue)] {
+        let steps = [(kAXSizeAttribute, sizeValue), (kAXPositionAttribute, originValue), (kAXSizeAttribute, sizeValue)]
+        for (attribute, value) in (positionFirst ? [(kAXPositionAttribute, originValue)] : []) + steps {
             let error = AXUIElementSetAttributeValue(element, attribute as CFString, value)
             if error == .invalidUIElement { return error }
         }

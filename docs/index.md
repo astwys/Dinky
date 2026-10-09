@@ -104,8 +104,11 @@ defaults write com.apple.dock workspaces-auto-swoosh -bool true && killall Dock
 
 ## Known limits
 
-- Only one display has been tested properly. Switching a display the pointer
-  is not on may flicker the pointer.
+- Tested with up to three displays (a laptop and two external ones). Switching
+  a display the pointer is not on moves the pointer there and back, which can
+  flicker.
+- When a workspace moves to another display, an app that puts its window back
+  where it was (Chess does) stays on the old display's Space.
 - dinky creates and removes Spaces to keep one per workspace, but leaves a
   leftover Space with windows alone.
 - Apps refuse some sizes (Safari's minimum width, Terminal's grid). dinky lays
