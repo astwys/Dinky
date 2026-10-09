@@ -38,8 +38,10 @@ struct WorkspacePlanTests {
         func numbers(on uuid: String) -> [Int] { spaces(uuid).compactMap { s in binding.first { $0.value == s }?.key } }
     }
 
-    private static func display(_ uuid: String, _ name: String, main: Bool, count: Int, _ spaces: [UInt64]) -> PlanDisplay {
-        PlanDisplay(uuid: uuid, monitor: Monitor(name: name, isMain: main, count: count), spaces: spaces, current: spaces[0])
+    private static func display(_ uuid: String, _ name: String, main: Bool, count: Int, number: Int = 0,
+                                _ spaces: [UInt64]) -> PlanDisplay {
+        PlanDisplay(uuid: uuid, monitor: Monitor(name: name, isMain: main, count: count, number: number), spaces: spaces,
+                    current: spaces[0])
     }
 
     private let fivePlusSide = WorkspacePlan(count: 5, assignments: [5: [.secondary]])
@@ -119,6 +121,14 @@ struct WorkspacePlanTests {
         let displays = [Self.display("M", "Built-in", main: true, count: 2, [1]),
                         Self.display("G", "LG UltraFine", main: false, count: 2, [2])]
         #expect(plan.homes(displays) == [1: "M", 2: "G", 3: "M"])
+    }
+
+    @Test func `Three displays: numbers and names place workspaces, secondary matches none`() {
+        let plan = WorkspacePlan(count: 5, assignments: [2: [.number(1)], 3: [.name("p2720dc (1)")], 4: [.secondary], 5: [.number(4)]])
+        let displays = [Self.display("L", "DELL P2720DC (2)", main: false, count: 3, number: 1, [1]),
+                        Self.display("C", "DELL P2720DC (1)", main: false, count: 3, number: 2, [2]),
+                        Self.display("M", "Built-in Retina Display", main: true, count: 3, number: 3, [3])]
+        #expect(plan.homes(displays) == [1: "M", 2: "L", 3: "C", 4: "M", 5: "M"])
     }
 
     @Test func `Display without workspaces keeps one Space`() {
