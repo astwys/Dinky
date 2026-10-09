@@ -49,7 +49,8 @@ extension Config {
     inner = 8                       # or { horizontal = 8, vertical = 8 }
     outer = 8                       # or { top = 8, bottom = 8, left = 8, right = 8 }
 
-    # Display patterns: main, secondary, or part of a name as `dinky list-displays` prints it.
+    # Display patterns: main, secondary (of exactly two), a number from `dinky list-displays` (left to right),
+    # or part of a name as it prints it.
     # A workspace lives on the first display its patterns match, else on the main display.
     # [workspace-to-display]
     # 5 = 'secondary'

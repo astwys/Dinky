@@ -49,12 +49,21 @@ func runDoctor(_ args: [String]) -> Int32 {
 
     // Where the workspaces go with the displays connected now; the app arranges the Spaces to match.
     let connected = dinky_displays()
-    let displays = connected.map { d in
+    let displays = connected.enumerated().map { i, d in
         PlanDisplay(uuid: d.uuid, monitor: Monitor(name: screen(of: d.displayID)?.localizedName ?? "",
-                                                   isMain: CGDisplayIsMain(d.displayID) != 0, count: connected.count),
+                                                   isMain: CGDisplayIsMain(d.displayID) != 0, count: connected.count,
+                                                   number: i + 1),
                     spaces: d.spaces.filter(\.isUser).map(\.spaceID), current: d.currentSpaceID)
     }
     let homes = WorkspacePlan(config).homes(displays)
+    for (n, patterns) in config.workspaceDisplays.sorted(by: { $0.key < $1.key })
+    where !patterns.contains(where: { p in displays.contains { p.matches($0.monitor) } }) {
+        // Not connected is fine (a side display at the desk only); secondary with three displays never matches.
+        let message = "workspace \(n): no connected display matches \(patterns.map { "'\($0.text)'" }.joined(separator: ", ")), so it is on the main display"
+        patterns.contains(.secondary) && displays.count > 2
+            ? warn(message + "; secondary only means the other of exactly two displays, use a display number or name")
+            : ok(message)
+    }
     for (i, display) in displays.enumerated() {
         let label = display.monitor.name.isEmpty ? "display \(i + 1)" : "display \(i + 1) (\(display.monitor.name))"
         let here = homes.filter { $0.value == display.uuid }.keys.sorted()

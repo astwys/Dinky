@@ -19,11 +19,12 @@
     },
     "workspace-to-display": {
       "type": "object",
-      "description": "By workspace number, the display it lives on: a pattern (main, secondary, or a case-insensitive part of the display's name as `dinky list-displays` prints it) or a list of them, the first that matches a connected display winning. Other workspaces, and these when no pattern matches, live on the main display.",
+      "description": "By workspace number, the display it lives on: a pattern (main, secondary when there are exactly two displays, a display number from 1, left to right as `dinky list-displays` numbers them, or a case-insensitive part of the display's name as it prints it) or a list of them, the first that matches a connected display winning. Other workspaces, and these when no pattern matches, live on the main display.",
       "propertyNames": { "pattern": "^[1-9][0-9]*$" },
       "additionalProperties": {
         "oneOf": [
           { "type": "string", "minLength": 1 },
+          { "type": "integer", "minimum": 1 },
           { "type": "array", "items": { "type": "string", "minLength": 1 }, "minItems": 1 }
         ]
       }
@@ -143,7 +144,7 @@
     "gaps": { "$ref": "#/definitions/gaps" },
     "display": {
       "type": "object",
-      "description": "Overrides for one display, keyed by pattern: main, secondary, or a case-insensitive part of the display's name as `dinky list-displays` prints it.",
+      "description": "Overrides for one display, keyed by pattern: main, secondary, a display number, or a case-insensitive part of the display's name as `dinky list-displays` prints it.",
       "additionalProperties": {
         "type": "object",
         "additionalProperties": false,

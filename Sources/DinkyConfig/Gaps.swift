@@ -77,25 +77,40 @@ public struct Monitor: Equatable {
     public var isMain: Bool
     /// How many displays there are.
     public var count: Int
+    /// The display's number, from 1, left to right as `dinky list-displays` numbers them.
+    public var number: Int
 
-    public init(name: String, isMain: Bool, count: Int) {
+    public init(name: String, isMain: Bool, count: Int, number: Int = 0) {
         self.name = name
         self.isMain = isMain
         self.count = count
+        self.number = number
     }
 }
 
-/// `main`, `secondary` (the non-main display when there are exactly two), or a case-insensitive
-/// substring of the display's name, such as `built-in` or `dell`.
+/// `main`, `secondary` (the non-main display when there are exactly two), a display number such as `2`,
+/// or a case-insensitive substring of the display's name, such as `built-in` or `dell`.
 public enum MonitorPattern: Equatable {
     case main, secondary
+    case number(Int)
     case name(String)
 
     init(_ text: String) {
         switch text {
         case "main": self = .main
         case "secondary": self = .secondary
-        default: self = .name(text)
+        default:
+            if let n = Int(text), n > 0 { self = .number(n) } else { self = .name(text) }
+        }
+    }
+
+    /// The pattern as written in the config.
+    public var text: String {
+        switch self {
+        case .main: "main"
+        case .secondary: "secondary"
+        case .number(let n): "\(n)"
+        case .name(let text): text
         }
     }
 
@@ -103,13 +118,18 @@ public enum MonitorPattern: Equatable {
         switch self {
         case .main: monitor.isMain
         case .secondary: monitor.count == 2 && !monitor.isMain
+        case .number(let n): monitor.number == n
         case .name(let text): monitor.name.localizedCaseInsensitiveContains(text)
         }
     }
 
-    /// Name patterns beat `main` and `secondary`, longer names beat shorter.
+    /// Name patterns beat `main` and `secondary`, longer names beat shorter, and a display number beats all.
     var specificity: Int {
-        if case .name(let text) = self { text.count } else { -1 }
+        switch self {
+        case .main, .secondary: -1
+        case .name(let text): text.count
+        case .number: .max
+        }
     }
 }
 
@@ -138,7 +158,7 @@ public struct DisplayOverride: Equatable {
 
 extension Config {
     /// The display tables matching `monitor`, least specific first: `main` and `secondary`, then name
-    /// patterns, shortest first, so applying them in order lets the most specific win.
+    /// patterns, shortest first, then a display number, so applying them in order lets the most specific win.
     func overrides(for monitor: Monitor) -> [DisplayOverride] {
         displays.filter { $0.pattern.matches(monitor) }.sorted { $0.pattern.specificity < $1.pattern.specificity }
     }

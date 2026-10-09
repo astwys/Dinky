@@ -131,6 +131,9 @@ struct ConfigTests {
         #expect(config.settings(forWorkspace: 3, on: laptop).layout == .scrolling)
         #expect(config.settings(forWorkspace: 3, on: ultrawide).layout == .tiles)
         #expect(config.settings(forWorkspace: 1, on: laptop) == config.settings(forWorkspace: 1))
+        let numbered = try Config.parse("[workspace.1.display.built-in]\nlayout = 'accordion'\n[workspace.1.display.2]\nlayout = 'fixed'\n")
+        #expect(numbered.settings(forWorkspace: 1, on: Monitor(name: "Built-in Retina Display", isMain: false, count: 3, number: 2)).layout == .fixed,
+                "a display number beats a name")
         let ties = try Config.parse("[workspace.1.display.main]\nlayout = 'accordion'\n[workspace.1.display.secondary]\nlayout = 'fixed'\n")
         #expect(ties.settings(forWorkspace: 1, on: Monitor(name: "x", isMain: true, count: 1)).layout == .accordion)
         assertError("[workspace.2.display.main]\ncolumns = 2\n", path: "workspace.2.display.main.columns", line: 2, contains: "only valid")
