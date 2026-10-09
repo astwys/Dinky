@@ -63,7 +63,8 @@ struct GapsTests {
         assertError("[workspace-to-display]\n6 = 'main'\n", path: "workspace-to-display.6", line: 2, contains: "from 1 to 5")
         assertError("[workspace-to-display]\nfive = 'main'\n", path: "workspace-to-display.five", line: 2, contains: "not a workspace number")
         assertError("[workspace-to-display]\n1 = ''\n", path: "workspace-to-display.1", line: 2, contains: "can't be empty")
-        assertError("[workspace-to-display]\n1 = 2\n", path: "workspace-to-display.1", line: 2, contains: "string")
+        #expect(try Config.parse("[workspace-to-display]\n1 = 2\n2 = '3'\n").workspaceDisplays == [1: [.number(2)], 2: [.number(3)]])
+        assertError("[workspace-to-display]\n1 = true\n", path: "workspace-to-display.1", line: 2, contains: "string")
         // `01` and `+1` are workspace 1 too, as they always were; when keys name one workspace, the last wins, as
         // it always did, and the others are ignored. Each gets a warning.
         let leadingZero = try Config.parse("[workspace-to-display]\n01 = 'main'\n")
@@ -103,6 +104,8 @@ struct GapsTests {
         #expect(!MonitorPattern.secondary.matches(Monitor(name: "x", isMain: false, count: 3)))
         #expect(MonitorPattern.name("built-in").matches(builtIn))
         #expect(MonitorPattern.name("dell").matches(dell), "case-insensitive substring")
+        #expect(MonitorPattern.number(2).matches(Monitor(name: "x", isMain: false, count: 3, number: 2)))
+        #expect(!MonitorPattern.number(2).matches(Monitor(name: "2", isMain: false, count: 3, number: 1)), "a number is never a name")
         #expect(!MonitorPattern.name("built-in").matches(Monitor(name: "Apple Virtual Display", isMain: true, count: 1)))
     }
 

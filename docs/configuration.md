@@ -298,17 +298,19 @@ Control before reopening dinky. dinky does not restart the Dock to manage deskto
 ## `[workspace-to-display]`
 
 Which display a workspace lives on, by number from 1 to `workspaces`. A
-display pattern is `main`, `secondary` (the other one, when there are two), or
-part of the name from `dinky list-displays`. A list tries each in turn.
+display pattern is `main`, `secondary` (the other one, when there are exactly
+two), a display number (left to right, as `dinky list-displays` numbers them),
+or part of the name from `dinky list-displays`. A list tries each in turn.
 Unlisted workspaces, and listed ones whose display isn't connected, live on
-the main display. Keys are plain workspace numbers; `01` or `+1` is still read
-as workspace 1, with a warning; when two keys name one workspace, the last
-wins and the other is ignored, with a warning.
+the main display; `dinky doctor` lists those. Keys are plain workspace numbers;
+`01` or `+1` is still read as workspace 1, with a warning; when two keys name
+one workspace, the last wins and the other is ignored, with a warning.
 
 ```toml
 [workspace-to-display]
 5 = 'secondary'         # on the side display while it's connected, else a normal workspace
 4 = ['dell', 'lg']
+6 = 1                   # the leftmost display, with three or more
 ```
 
 When a display comes or goes, dinky moves the workspace's windows, layout
@@ -346,8 +348,10 @@ These diagnostics are always enabled; include them when reporting docking issues
 
 ## `[display.<pattern>]`
 
-Per-display `gaps`, `fullscreen-width` and `lone-window-width`, with the patterns above. Name
-patterns beat `main`/`secondary`; longer names beat shorter. A workspace's
+Per-display `gaps`, `fullscreen-width` and `lone-window-width`, with the
+patterns above (`[display.2]` for display 2). Name patterns beat
+`main`/`secondary`, longer names beat shorter, and a display number beats them
+all. A workspace's
 layout per display goes in
 [`[workspace.<number>.display.<pattern>]`](#workspacenumberdisplaypattern),
 and a width set there, or in `[workspace.<number>]`, beats the
@@ -704,7 +708,8 @@ side = 'left'                   # left | right | center: the master's side
 inner = 8                       # or { horizontal = 8, vertical = 8 }
 outer = 8                       # or { top = 8, bottom = 8, left = 8, right = 8 }
 
-# Display patterns: main, secondary, or part of a name as `dinky list-displays` prints it.
+# Display patterns: main, secondary (of exactly two), a number from `dinky list-displays` (left to right),
+# or part of a name as it prints it.
 # A workspace lives on the first display its patterns match, else on the main display.
 # [workspace-to-display]
 # 5 = 'secondary'
