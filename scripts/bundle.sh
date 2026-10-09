@@ -8,6 +8,8 @@ VERSION="${VERSION:-0.0}"
 BUILD="${BUILD:-1}"
 IDENTITY="${IDENTITY:-Apple Development: Mikkel Malmberg (VAW8MWER4W)}"
 SIGN_FLAGS="${SIGN_FLAGS:-}"  # release packaging adds --options runtime --timestamp
+# Another bundle ID, such as com.brnbw.dinky.dev, gets its own Accessibility entry next to an installed release.
+BUNDLE_ID="${BUNDLE_ID:-}"
 CONFIG=release
 [[ "${1:-}" == "--debug" ]] && CONFIG=debug
 
@@ -20,6 +22,7 @@ cp "$(swift build -c "$CONFIG" --show-bin-path)/dinky" "$APP/Contents/MacOS/dink
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 plutil -replace CFBundleShortVersionString -string "$VERSION" "$APP/Contents/Info.plist"
 plutil -replace CFBundleVersion -string "$BUILD" "$APP/Contents/Info.plist"
+[[ -n "$BUNDLE_ID" ]] && plutil -replace CFBundleIdentifier -string "$BUNDLE_ID" "$APP/Contents/Info.plist"
 
 # The app icon: Resources/Dinky.icon (Icon Composer) compiled into Assets.car and an icns fallback.
 ICON_OUT="$(mktemp -d)"

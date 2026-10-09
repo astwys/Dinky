@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Development
+
+- `BUNDLE_ID=com.brnbw.dinky.dev scripts/bundle.sh` builds dinky under another bundle ID, so a dev build gets its own Accessibility grant next to an installed release.
+
 ## 0.23
 
 ### Configuration
