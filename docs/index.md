@@ -69,11 +69,15 @@ open build/dinky.app
 `just install` builds and signs `build/dinky.app` and links the CLI into
 `~/.local/bin`. Sign with a stable identity
 (`security find-identity -p codesigning`): macOS ties the Accessibility grant
-to the signature, so ad-hoc builds lose it on every rebuild.
+to the signature, so ad-hoc builds lose it on every rebuild. A build with the
+release's bundle ID shares the release's grant and never gets its own while the
+release is installed; build with `BUNDLE_ID=com.brnbw.dinky.dev` to give it one.
 
 ## First run
 
-dinky writes `~/.config/dinky/dinky.toml`, asks for Accessibility, and offers
+dinky writes `~/.config/dinky/dinky.toml`, asks for Accessibility (on macOS 27
+it is called Device Control and Data Access; add dinky with + if it isn't
+listed), and offers
 once to turn off "When switching to an application, switch to a Space with
 open windows" (Desktop & Dock > Mission Control). With that off, Cmd-Tab and
 Dock clicks switch Spaces the fast way instead of sliding. Saying no is fine.
@@ -95,8 +99,8 @@ menu bar and says which one to quit.
 
 Quit dinky, delete the app, `~/.config/dinky`,
 `~/Library/Application Support/dinky` and `~/Library/Logs/dinky.log`, run
-`defaults delete com.brnbw.dinky`, and remove it from Accessibility and Login
-Items. To get the Cmd-Tab slide back:
+`defaults delete com.brnbw.dinky`, and remove it from Accessibility (Device
+Control and Data Access on macOS 27) and Login Items. To get the Cmd-Tab slide back:
 
 ```sh
 defaults write com.apple.dock workspaces-auto-swoosh -bool true && killall Dock

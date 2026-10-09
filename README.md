@@ -14,7 +14,7 @@ brew install --cask mikker/tap/dinky
 
 ## Quick start
 
-Open dinky and grant Accessibility when asked. Windows tile as they open.
+Open dinky and grant Accessibility when asked (on macOS 27, Privacy & Security > Device Control and Data Access). Windows tile as they open.
 
 - `dinky workspace 3`: Switch to workspace 3.
 - `dinky layout accordion`: Stack the focused container.

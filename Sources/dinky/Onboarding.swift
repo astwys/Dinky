@@ -29,13 +29,20 @@ final class Onboarding: NSObject {
     private func showAccessibilityStep() {
         show(title: "dinky needs Accessibility",
              text: "dinky moves and tiles windows through the Accessibility API. Turn dinky on under "
-                 + "Privacy & Security, Accessibility. This window moves on by itself once it is allowed.",
+                 + "Privacy & Security, \(Self.accessibilityPane); if it isn't listed, add it with +. "
+                 + "This window moves on by itself once it is allowed.",
              buttons: [button("Open Accessibility Settings", #selector(openAccessibility))])
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
             guard let self, self.isTrusted() else { return }
             self.timer?.invalidate()
             self.trusted()
         }
+    }
+
+    /// macOS 27 renamed the Accessibility list in Privacy & Security.
+    private static var accessibilityPane: String {
+        ProcessInfo.processInfo.isOperatingSystemAtLeast(OperatingSystemVersion(majorVersion: 27, minorVersion: 0, patchVersion: 0))
+            ? "Device Control and Data Access" : "Accessibility"
     }
 
     @objc private func openAccessibility() {
