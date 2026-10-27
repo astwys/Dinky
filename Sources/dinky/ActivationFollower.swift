@@ -111,6 +111,7 @@ private func activated(_ pid: pid_t, name: String, previous: pid_t) {
         return log("activate \(name): not followed, no focused display")
     }
     guard !windowSpaces(of: pid).contains(here) else { return log("activate \(name): stayed, it has a window here") }
+    guard !focusesWindowOnScreen(pid) else { return log("activate \(name): stayed, its focused window is on screen") }
     let activatedAt = uptime()
     let activation = activations
     DispatchQueue.main.asyncAfter(deadline: .now() + .nanoseconds(Int(windowGrace))) {
@@ -148,6 +149,14 @@ private func noteFollow(_ text: String) {
 // The Spaces of the app's normal windows, front to back: the first one is its frontmost window's.
 private func windowSpaces(of pid: pid_t) -> [UInt64] {
     normalWindows(of: pid, [.optionAll]).map { dinky_window_space_id($0) }
+}
+
+// Whether the window the app made key is on screen, like a floating video call or picture-in-picture panel the
+// user clicked. Such panels sit on every Space and are not normal windows, so `windowSpaces` misses them.
+private func focusesWindowOnScreen(_ pid: pid_t) -> Bool {
+    let wid = focusedWindowID(of: pid)
+    let info = CGWindowListCopyWindowInfo(.optionIncludingWindow, wid) as? [[String: Any]] ?? []
+    return wid != 0 && info.first?[kCGWindowIsOnscreen as String] as? Bool == true
 }
 
 // Whether the app shows a normal window on a current Space; a hidden app does not.

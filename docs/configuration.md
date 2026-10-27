@@ -49,6 +49,10 @@ The table form of `follow-app-activation`, in place of the top-level line.
 
 </div>
 
+An app whose focused window is already on screen, such as a call or
+picture-in-picture panel that shows on every Space, is not followed either,
+even when its other windows are on another workspace.
+
 ## `[workspace.<number>]`
 
 Override the top-level `default-tiling` and `default-layout` for a globally
