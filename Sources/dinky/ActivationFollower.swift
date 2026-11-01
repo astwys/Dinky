@@ -166,15 +166,18 @@ private func hasWindowOnScreen(_ pid: pid_t) -> Bool {
 }
 
 // Only the windows the window model tracks as normal count, so an app's hidden helper windows, which can sit
-// on any Space, don't. The window server's list supplies the front-to-back order.
+// on any Space, don't. The window server's list supplies the front-to-back order. The app's windows are read
+// afresh first: WindowServer sends no event when a closed window is shown again on a Space that is not on screen,
+// as a menu bar app does with its main window when its "open" button activates it.
 func normalWindows(of pid: pid_t, _ options: CGWindowListOption) -> [UInt32] {
-    let known = AppState.shared.coordinator?.model.windows ?? [:]
     let info = CGWindowListCopyWindowInfo(options, kCGNullWindowID) as? [[String: Any]] ?? []
-    return info.compactMap { w in
-        guard w[kCGWindowOwnerPID as String] as? pid_t == pid, w[kCGWindowLayer as String] as? Int == 0,
-              let id = w[kCGWindowNumber as String] as? UInt32, known[id]?.isNormal == true else { return nil }
-        return id
+    let ids = info.compactMap { w -> UInt32? in
+        guard w[kCGWindowOwnerPID as String] as? pid_t == pid, w[kCGWindowLayer as String] as? Int == 0 else { return nil }
+        return w[kCGWindowNumber as String] as? UInt32
     }
+    guard let model = AppState.shared.coordinator?.model else { return [] }
+    model.reconcile(ids)
+    return ids.filter { model.windows[$0]?.isNormal == true }
 }
 
 // Switches to the Space of the app's main window, the one Cmd-Tab brings forward, or else of its frontmost one.
