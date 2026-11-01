@@ -13,6 +13,7 @@
 - `focus <direction>` from a floating window works on every display, not only the main one.
 - `focus <direction> --boundaries all-monitors-outer-frame` goes on from a display showing an empty workspace. Before, focus got stuck there.
 - Clicking a call or picture-in-picture panel that shows on every Space no longer switches to the workspace with the app's other windows when `follow-app-activation` is on. While the panel is the app's focused window, Cmd-Tab and Dock clicks to that app stay put too.
+- With `follow-app-activation` on, opening a menu bar app's closed window from its menu switches to the workspace the window shows on. Before, dinky stayed put, as macOS reports no change for a window shown again on a workspace that is not on screen.
 - The first run names the macOS 27 permission list, Device Control and Data Access.
 
 ### Development
