@@ -385,7 +385,8 @@ final class Coordinator {
             placements[window.id]!.space = nil
             return
         }
-        let new = window.isMinimized ? nil : key(of: window)
+        // A window its app ordered out instead of closing (Dayflow, Monologue) still reports its last Space.
+        let new = window.isMinimized || !window.isOrderedIn ? nil : key(of: window)
         guard old != new, heldTabs[window.id] == nil else { return }
         if let old { edit(old) { $0.remove(window.id) } }
         // A window coming from another Space's tree is moving, not switching tabs: tabs share a Space.
