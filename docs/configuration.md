@@ -61,6 +61,10 @@ not restore macOS's persistent Space-switching preference; see
 
 </div>
 
+An app whose focused window is already on screen, such as a call or
+picture-in-picture panel that shows on every Space, is not followed either,
+even when its other windows are on another workspace.
+
 ## `[workspace.<number>]`
 
 Override the top-level `default-tiling` and `default-layout` for a globally
