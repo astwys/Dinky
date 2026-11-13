@@ -45,6 +45,13 @@ func mainWindowID(of pid: pid_t) -> UInt32 {
     return axElement(app, kAXMainWindowAttribute).map(axWindowID) ?? 0
 }
 
+/// The app's focused window, the one it made key, wherever it is. 0 if it has none. Bounded as `mainWindowID` is.
+func focusedWindowID(of pid: pid_t) -> UInt32 {
+    let app = AXUIElementCreateApplication(pid)
+    AXUIElementSetMessagingTimeout(app, 0.25)
+    return axElement(app, kAXFocusedWindowAttribute).map(axWindowID) ?? 0
+}
+
 /// The frontmost app's focused window, 0 if none. Asked on the main thread every half second, so bounded as
 /// `mainWindowID` is: a hung app must not stall the key tap.
 func frontWindowID() -> UInt32 {

@@ -12,6 +12,7 @@
 - A window moved to a workspace on another display stays there. Before, it could jump back to its old display when its workspace was shown or moved between displays.
 - `focus <direction>` from a floating window works on every display, not only the main one.
 - `focus <direction> --boundaries all-monitors-outer-frame` goes on from a display showing an empty workspace. Before, focus got stuck there.
+- Clicking a call or picture-in-picture panel that shows on every Space no longer switches to the workspace with the app's other windows when `follow-app-activation` is on. While the panel is the app's focused window, Cmd-Tab and Dock clicks to that app stay put too.
 - The first run names the macOS 27 permission list, Device Control and Data Access.
 
 ### Development
