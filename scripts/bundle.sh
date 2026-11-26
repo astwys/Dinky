@@ -6,7 +6,9 @@ cd "$(dirname "$0")/.."
 
 VERSION="${VERSION:-0.0}"
 BUILD="${BUILD:-1}"
-IDENTITY="${IDENTITY:-Apple Development: Mikkel Malmberg (VAW8MWER4W)}"
+# The keychain's first Apple Development identity, looked up at build time so no personal certificate name lives here.
+IDENTITY="${IDENTITY:-$(security find-identity -v -p codesigning | awk -F'"' '/Apple Development/ { print $2; exit }')}"
+[[ -n "$IDENTITY" ]] || { echo 'no Apple Development identity in the keychain; set IDENTITY' >&2; exit 1; }
 SIGN_FLAGS="${SIGN_FLAGS:-}"  # release packaging adds --options runtime --timestamp
 # Another bundle ID, such as com.brnbw.dinky.dev, gets its own Accessibility entry next to an installed release.
 BUNDLE_ID="${BUNDLE_ID:-}"
